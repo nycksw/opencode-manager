@@ -1,0 +1,20 @@
+# <type>: <subject> (50 chars) ##########################
+
+# <body> (72 chars) ###########################################
+
+
+# Type can be:
+#   feat:     New feature
+#   fix:      Bug fix
+#   docs:     Documentation only
+#   style:    Code style (formatting, missing semicolons, etc)
+#   refactor: Code change that neither fixes a bug nor adds a feature
+#   perf:     Performance improvement
+#   test:     Adding missing tests
+#   chore:    Changes to build process or auxiliary tools
+#
+# Remember:
+# - Subject line max 50 characters
+# - Body lines wrap at 72 characters
+# - Use lowercase "opencode" not "OpenCode"
+# - Be clear and concise

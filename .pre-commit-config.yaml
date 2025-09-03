@@ -1,0 +1,61 @@
+# Pre-commit hooks to enforce coding guidelines
+# Install with: pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  # Basic file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+
+  # Python formatting with black (Google style: 80 chars)
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        args: ['--line-length=80']
+
+  # Python linting with ruff
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.3.4
+    hooks:
+      - id: ruff
+        args: ['--fix', '--line-length=80']
+
+  # Local hooks
+  - repo: local
+    hooks:
+      # Check for correct "opencode" capitalization
+      - id: check-opencode-naming
+        name: Check for incorrect opencode capitalization
+        entry: scripts/check_opencode_naming.sh
+        language: script
+        pass_filenames: false
+
+      # Type checking with pyright
+      - id: pyright
+        name: pyright type checking
+        entry: scripts/run_pyright.sh
+        language: script
+        types: [python]
+        pass_filenames: false
+
+      # Unit tests - MUST pass on every commit
+      - id: pytest-unit
+        name: Unit tests (required)
+        entry: uv run python -m pytest tests/test_server.py tests/test_isolation.py -q --tb=short
+        language: system
+        types: [python]
+        pass_filenames: false
+        always_run: true
