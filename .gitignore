@@ -60,3 +60,6 @@ uv.lock
 # Node/npm
 node_modules/
 package-lock.json
+
+# Bun lockfile (project uses npm)
+bun.lock
