@@ -1,6 +1,7 @@
 """OpencodeServer - High-level server orchestration and management."""
 
 import logging
+import subprocess
 import time
 from pathlib import Path
 from typing import List, Optional
@@ -347,3 +348,31 @@ class OpencodeServer:
                 "Server not started. Use context manager or call __enter__"
             )
         return self._session_manager.get_messages(session_id)
+
+    def get_opencode_version(self) -> str:
+        """Get version of opencode binary in isolated environment.
+        
+        Returns:
+            Version string (e.g., "0.6.3")
+            
+        Raises:
+            RuntimeError: If server not started
+        """
+        if not self.isolation_manager:
+            raise RuntimeError(
+                "Server not started. Use context manager or call __enter__"
+            )
+            
+        if not hasattr(self, '_version'):
+            # Run version check with isolation environment vars
+            env = self.isolation_manager.get_environment()
+            result = subprocess.run(
+                [str(self.opencode_binary), "--version"],
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            # Output is just "0.6.3" - clean version string
+            self._version = result.stdout.strip()
+        return self._version

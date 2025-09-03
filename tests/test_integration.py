@@ -11,13 +11,38 @@ To set up test resources:
 This will copy your opencode configuration files for testing.
 """
 
+import json
 import os
+import subprocess
 from pathlib import Path
 from typing import Any, Dict
 
 import pytest
+import requests
 
 from opencode_manager import OpencodeServer
+
+
+def check_opencode_version():
+    """Show version info for debugging test failures."""
+    version_file = Path("OPENCODE_VERSION")
+    if version_file.exists():
+        try:
+            expected = version_file.read_text().strip()
+            # Check version of actual test binary
+            result = subprocess.run(
+                ["test_resources/opencode", "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            actual = result.stdout.strip()
+            
+            if actual != expected:
+                print(f"\nWARNING: Testing with opencode {actual} (last tested: {expected})")
+                print(f"   If tests fail, consider: make update-api-spec\n")
+        except Exception:
+            pass  # Don't break tests over version display
 
 
 def get_test_config() -> Dict[str, Any]:
@@ -94,6 +119,10 @@ def get_test_config() -> Dict[str, Any]:
 @pytest.mark.integration
 class TestIntegrationWithRealServer:
     """Integration tests that run a real opencode server."""
+    
+    def setup_class(self):
+        """Check version once before all tests."""
+        check_opencode_version()
 
     def test_server_lifecycle(self, tmp_path, capsys):
         """Test basic server lifecycle with real server.
@@ -196,6 +225,29 @@ class TestIntegrationWithRealServer:
                 print("\nDeleting session...")
                 session.delete()
                 print("Session deleted")
+                
+                # Capture version and API spec if requested
+                if os.environ.get("UPDATE_API_SPEC"):
+                    print("\nUpdating API spec and version...")
+                    try:
+                        # Get version (runs in isolation)
+                        version = server.get_opencode_version()
+                        Path("OPENCODE_VERSION").write_text(version)
+                        print(f"Captured version: {version}")
+                        
+                        # Get API spec from running server
+                        response = requests.get(f"{server.base_url}/doc")
+                        response.raise_for_status()
+                        
+                        # Try to parse as JSON
+                        api_spec = response.json()
+                        with open("opencode_api.json", "w") as f:
+                            json.dump(api_spec, f, indent=2)
+                        
+                        print(f"Updated API spec to opencode {version}")
+                    except Exception as e:
+                        print(f"Warning: Could not update API spec: {e}")
+                        print("Note: The /openapi endpoint may not be available in this version")
 
                 print("\n" + "=" * 70)
                 print("Integration test completed successfully!")

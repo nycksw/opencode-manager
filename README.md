@@ -142,6 +142,21 @@ make example
 uv run python examples/basic_usage.py
 ```
 
+## API Specification
+
+The project tracks the OpenAPI specification and version of the opencode binary:
+
+```bash
+# Update API spec and version (runs integration test)
+make update-api-spec
+
+# Check if API spec has changed (useful in CI)
+make check-api-spec
+```
+
+The tested opencode version is tracked in `OPENCODE_VERSION`.
+Note: This uses the `test_resources/opencode` binary with full isolation.
+
 ## Features
 
 - **Complete isolation** - Server NEVER touches your real home or XDG directories

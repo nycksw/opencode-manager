@@ -6,13 +6,70 @@
     "version": "0.0.3"
   },
   "paths": {
+    "/project": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "List of projects",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Project"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "project.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "List all projects"
+      }
+    },
+    "/project/current": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Current project",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Project"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "project.current",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Get the current project"
+      }
+    },
     "/event": {
       "get": {
         "responses": {
           "200": {
             "description": "Event stream",
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "schema": {
                   "$ref": "#/components/schemas/Event"
                 }
@@ -21,46 +78,16 @@
           }
         },
         "operationId": "event.subscribe",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Get events"
-      }
-    },
-    "/app": {
-      "get": {
-        "responses": {
-          "200": {
-            "description": "200",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/App"
-                }
-              }
-            }
-          }
-        },
-        "operationId": "app.get",
-        "parameters": [],
-        "description": "Get app info"
-      }
-    },
-    "/app/init": {
-      "post": {
-        "responses": {
-          "200": {
-            "description": "Initialize the app",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "boolean"
-                }
-              }
-            }
-          }
-        },
-        "operationId": "app.init",
-        "parameters": [],
-        "description": "Initialize the app"
       }
     },
     "/config": {
@@ -78,8 +105,43 @@
           }
         },
         "operationId": "config.get",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Get config info"
+      }
+    },
+    "/path": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Path",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Path"
+                }
+              }
+            }
+          }
+        },
+        "operationId": "path.get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "description": "Get the current path"
       }
     },
     "/session": {
@@ -100,7 +162,15 @@
           }
         },
         "operationId": "session.list",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "List all sessions"
       },
       "post": {
@@ -127,7 +197,15 @@
           }
         },
         "operationId": "session.create",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Create a new session",
         "requestBody": {
           "content": {
@@ -165,6 +243,13 @@
         "operationId": "session.get",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -191,6 +276,13 @@
         "operationId": "session.delete",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -216,6 +308,13 @@
         },
         "operationId": "session.update",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -262,6 +361,13 @@
         "operationId": "session.children",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -289,6 +395,13 @@
         },
         "operationId": "session.init",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -344,6 +457,13 @@
         "operationId": "session.abort",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -372,6 +492,13 @@
         "operationId": "session.share",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -397,6 +524,13 @@
         },
         "operationId": "session.unshare",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -425,6 +559,13 @@
         },
         "operationId": "session.summarize",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -494,6 +635,13 @@
         "operationId": "session.messages",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -533,8 +681,15 @@
             }
           }
         },
-        "operationId": "session.chat",
+        "operationId": "session.prompt",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -556,11 +711,20 @@
                     "type": "string",
                     "pattern": "^msg"
                   },
-                  "providerID": {
-                    "type": "string"
-                  },
-                  "modelID": {
-                    "type": "string"
+                  "model": {
+                    "type": "object",
+                    "properties": {
+                      "providerID": {
+                        "type": "string"
+                      },
+                      "modelID": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "providerID",
+                      "modelID"
+                    ]
                   },
                   "agent": {
                     "type": "string"
@@ -600,8 +764,6 @@
                   }
                 },
                 "required": [
-                  "providerID",
-                  "modelID",
                   "parts"
                 ]
               }
@@ -641,6 +803,13 @@
         },
         "operationId": "session.message",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -694,6 +863,13 @@
         },
         "operationId": "session.command",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -755,6 +931,13 @@
         "operationId": "session.shell",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -804,6 +987,13 @@
         },
         "operationId": "session.revert",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -855,6 +1045,13 @@
         "operationId": "session.unrevert",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -882,6 +1079,13 @@
         },
         "operationId": "postSessionByIdPermissionsByPermissionID",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "path",
             "name": "id",
@@ -942,7 +1146,15 @@
           }
         },
         "operationId": "command.list",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "List all commands"
       }
     },
@@ -979,7 +1191,15 @@
           }
         },
         "operationId": "config.providers",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "List all providers"
       }
     },
@@ -1071,6 +1291,13 @@
         "parameters": [
           {
             "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "pattern",
             "schema": {
               "type": "string"
@@ -1100,6 +1327,13 @@
         },
         "operationId": "find.files",
         "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
           {
             "in": "query",
             "name": "query",
@@ -1133,6 +1367,13 @@
         "parameters": [
           {
             "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "query",
             "schema": {
               "type": "string"
@@ -1144,6 +1385,44 @@
       }
     },
     "/file": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Files and directories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FileNode"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "operationId": "file.list",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "path",
+            "schema": {
+              "type": "string"
+            },
+            "required": true
+          }
+        ],
+        "description": "List files and directories"
+      }
+    },
+    "/file/content": {
       "get": {
         "responses": {
           "200": {
@@ -1177,6 +1456,13 @@
         "parameters": [
           {
             "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
             "name": "path",
             "schema": {
               "type": "string"
@@ -1205,7 +1491,15 @@
           }
         },
         "operationId": "file.status",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Get file status"
       }
     },
@@ -1224,7 +1518,15 @@
           }
         },
         "operationId": "app.log",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Write a log entry to the server logs",
         "requestBody": {
           "content": {
@@ -1285,7 +1587,15 @@
           }
         },
         "operationId": "app.agents",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "List all agents"
       }
     },
@@ -1304,7 +1614,15 @@
           }
         },
         "operationId": "tui.appendPrompt",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Append prompt to the TUI",
         "requestBody": {
           "content": {
@@ -1340,7 +1658,15 @@
           }
         },
         "operationId": "tui.openHelp",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Open the help dialog"
       }
     },
@@ -1359,7 +1685,15 @@
           }
         },
         "operationId": "tui.openSessions",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Open the session dialog"
       }
     },
@@ -1378,7 +1712,15 @@
           }
         },
         "operationId": "tui.openThemes",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Open the theme dialog"
       }
     },
@@ -1397,7 +1739,15 @@
           }
         },
         "operationId": "tui.openModels",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Open the model dialog"
       }
     },
@@ -1416,7 +1766,15 @@
           }
         },
         "operationId": "tui.submitPrompt",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Submit the prompt"
       }
     },
@@ -1435,7 +1793,15 @@
           }
         },
         "operationId": "tui.clearPrompt",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Clear the prompt"
       }
     },
@@ -1454,7 +1820,15 @@
           }
         },
         "operationId": "tui.executeCommand",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Execute a TUI command (e.g. agent_cycle)",
         "requestBody": {
           "content": {
@@ -1490,7 +1864,15 @@
           }
         },
         "operationId": "tui.showToast",
-        "parameters": [],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "description": "Show a toast notification in the TUI",
         "requestBody": {
           "content": {
@@ -1551,6 +1933,13 @@
         "operationId": "auth.set",
         "parameters": [
           {
+            "in": "query",
+            "name": "directory",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "in": "path",
             "name": "id",
             "schema": {
@@ -1574,6 +1963,40 @@
   },
   "components": {
     "schemas": {
+      "Project": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "worktree": {
+            "type": "string"
+          },
+          "vcs": {
+            "type": "string",
+            "const": "git"
+          },
+          "time": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "number"
+              },
+              "initialized": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "created"
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "worktree",
+          "time"
+        ]
+      },
       "Event": {
         "oneOf": [
           {
@@ -1593,9 +2016,6 @@
           },
           {
             "$ref": "#/components/schemas/Event.message.part.removed"
-          },
-          {
-            "$ref": "#/components/schemas/Event.storage.write"
           },
           {
             "$ref": "#/components/schemas/Event.permission.updated"
@@ -1620,12 +2040,6 @@
           },
           {
             "$ref": "#/components/schemas/Event.server.connected"
-          },
-          {
-            "$ref": "#/components/schemas/Event.file.watcher.updated"
-          },
-          {
-            "$ref": "#/components/schemas/Event.ide.installed"
           }
         ],
         "discriminator": {
@@ -1637,7 +2051,6 @@
             "message.removed": "#/components/schemas/Event.message.removed",
             "message.part.updated": "#/components/schemas/Event.message.part.updated",
             "message.part.removed": "#/components/schemas/Event.message.part.removed",
-            "storage.write": "#/components/schemas/Event.storage.write",
             "permission.updated": "#/components/schemas/Event.permission.updated",
             "permission.replied": "#/components/schemas/Event.permission.replied",
             "file.edited": "#/components/schemas/Event.file.edited",
@@ -1645,9 +2058,7 @@
             "session.deleted": "#/components/schemas/Event.session.deleted",
             "session.idle": "#/components/schemas/Event.session.idle",
             "session.error": "#/components/schemas/Event.session.error",
-            "server.connected": "#/components/schemas/Event.server.connected",
-            "file.watcher.updated": "#/components/schemas/Event.file.watcher.updated",
-            "ide.installed": "#/components/schemas/Event.ide.installed"
+            "server.connected": "#/components/schemas/Event.server.connected"
           }
         }
       },
@@ -2774,31 +3185,6 @@
           "properties"
         ]
       },
-      "Event.storage.write": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "storage.write"
-          },
-          "properties": {
-            "type": "object",
-            "properties": {
-              "key": {
-                "type": "string"
-              },
-              "content": {}
-            },
-            "required": [
-              "key"
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "properties"
-        ]
-      },
       "Event.permission.updated": {
         "type": "object",
         "properties": {
@@ -2952,6 +3338,12 @@
             "type": "string",
             "pattern": "^ses"
           },
+          "projectID": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          },
           "parentID": {
             "type": "string",
             "pattern": "^ses"
@@ -3011,6 +3403,8 @@
         },
         "required": [
           "id",
+          "projectID",
+          "directory",
           "title",
           "version",
           "time"
@@ -3126,119 +3520,6 @@
           "properties"
         ]
       },
-      "Event.file.watcher.updated": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "file.watcher.updated"
-          },
-          "properties": {
-            "type": "object",
-            "properties": {
-              "file": {
-                "type": "string"
-              },
-              "event": {
-                "anyOf": [
-                  {
-                    "type": "string",
-                    "const": "rename"
-                  },
-                  {
-                    "type": "string",
-                    "const": "change"
-                  }
-                ]
-              }
-            },
-            "required": [
-              "file",
-              "event"
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "properties"
-        ]
-      },
-      "Event.ide.installed": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string",
-            "const": "ide.installed"
-          },
-          "properties": {
-            "type": "object",
-            "properties": {
-              "ide": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "ide"
-            ]
-          }
-        },
-        "required": [
-          "type",
-          "properties"
-        ]
-      },
-      "App": {
-        "type": "object",
-        "properties": {
-          "hostname": {
-            "type": "string"
-          },
-          "git": {
-            "type": "boolean"
-          },
-          "path": {
-            "type": "object",
-            "properties": {
-              "config": {
-                "type": "string"
-              },
-              "data": {
-                "type": "string"
-              },
-              "root": {
-                "type": "string"
-              },
-              "cwd": {
-                "type": "string"
-              },
-              "state": {
-                "type": "string"
-              }
-            },
-            "required": [
-              "config",
-              "data",
-              "root",
-              "cwd",
-              "state"
-            ]
-          },
-          "time": {
-            "type": "object",
-            "properties": {
-              "initialized": {
-                "type": "number"
-              }
-            }
-          }
-        },
-        "required": [
-          "hostname",
-          "git",
-          "path",
-          "time"
-        ]
-      },
       "Config": {
         "type": "object",
         "properties": {
@@ -3290,7 +3571,8 @@
               "required": [
                 "template"
               ]
-            }
+            },
+            "description": "Command configuration, see https://opencode.ai/docs/commands"
           },
           "plugin": {
             "type": "array",
@@ -3470,6 +3752,21 @@
                     },
                     "baseURL": {
                       "type": "string"
+                    },
+                    "timeout": {
+                      "anyOf": [
+                        {
+                          "type": "integer",
+                          "exclusiveMinimum": 0,
+                          "description": "Timeout in milliseconds for requests to this provider. Default is 300000 (5 minutes). Set to false to disable timeout."
+                        },
+                        {
+                          "type": "boolean",
+                          "const": false,
+                          "description": "Disable timeout for this provider entirely."
+                        }
+                      ],
+                      "description": "Timeout in milliseconds for requests to this provider. Default is 300000 (5 minutes). Set to false to disable timeout."
                     }
                   },
                   "additionalProperties": {}
@@ -4344,6 +4641,29 @@
           "stretch"
         ]
       },
+      "Path": {
+        "type": "object",
+        "properties": {
+          "state": {
+            "type": "string"
+          },
+          "config": {
+            "type": "string"
+          },
+          "worktree": {
+            "type": "string"
+          },
+          "directory": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "config",
+          "worktree",
+          "directory"
+        ]
+      },
       "Error": {
         "type": "object",
         "properties": {
@@ -4512,6 +4832,33 @@
           "name",
           "kind",
           "location"
+        ]
+      },
+      "FileNode": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "file",
+              "directory"
+            ]
+          },
+          "ignored": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "name",
+          "path",
+          "type",
+          "ignored"
         ]
       },
       "File": {

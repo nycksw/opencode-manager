@@ -1,4 +1,4 @@
-.PHONY: help install test test-unit test-integration test-all format lint typecheck precommit clean example
+.PHONY: help install test test-unit test-integration test-all format lint typecheck precommit clean example update-api-spec check-api-spec
 
 help:
 	@echo "opencode-manager development commands (using uv)"
@@ -11,6 +11,8 @@ help:
 	@echo "  make lint            Lint code with ruff"
 	@echo "  make typecheck       Type check with pyright"
 	@echo "  make example         Run the basic usage example"
+	@echo "  make update-api-spec Update OpenAPI spec via integration test"
+	@echo "  make check-api-spec  Check if API spec has changed"
 	@echo "  make clean           Remove build artifacts"
 	@echo ""
 	@echo "For integration tests with real config:"
@@ -56,6 +58,21 @@ precommit:
 
 example:
 	uv run python examples/basic_usage.py
+
+update-api-spec:
+	@echo "Updating version (and API spec if available) via integration test..."
+	@if [ ! -x test_resources/opencode ]; then \
+	    echo "ERROR: test_resources/opencode not found. Run: ./test_resources/setup.sh"; \
+	    exit 1; \
+	fi
+	@UPDATE_API_SPEC=1 uv run python -m pytest tests/test_integration.py::TestIntegrationWithRealServer::test_server_lifecycle -xvs -q 2>&1 | grep -v "^=" | tail -15
+	@if [ -f OPENCODE_VERSION ]; then \
+	    echo "Updated to opencode $$(cat OPENCODE_VERSION)"; \
+	fi
+
+check-api-spec: update-api-spec
+	@git diff --quiet opencode_api.json OPENCODE_VERSION || \
+	    (echo "WARNING: API spec or version has changed - review and commit if needed"; exit 1)
 
 clean:
 	rm -rf .pytest_cache/
