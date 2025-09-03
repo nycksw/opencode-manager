@@ -36,6 +36,14 @@ repos:
   # Local hooks
   - repo: local
     hooks:
+      # Check for emojis (project guideline: ASCII only)
+      - id: check-emojis
+        name: Check for emojis in files
+        entry: scripts/check_emojis.py
+        language: script
+        pass_filenames: false
+        always_run: true
+
       # Check for correct "opencode" capitalization
       - id: check-opencode-naming
         name: Check for incorrect opencode capitalization
