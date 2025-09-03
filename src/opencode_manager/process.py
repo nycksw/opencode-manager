@@ -49,13 +49,9 @@ class ProcessManager:
                 f"opencode binary not found: {self.opencode_binary}"
             )
         if not self.opencode_binary.is_file():
-            raise ValueError(
-                f"opencode binary is not a file: {self.opencode_binary}"
-            )
+            raise ValueError(f"opencode binary is not a file: {self.opencode_binary}")
         if not self.opencode_binary.stat().st_mode & 0o111:
-            raise ValueError(
-                f"opencode binary not executable: {self.opencode_binary}"
-            )
+            raise ValueError(f"opencode binary not executable: {self.opencode_binary}")
 
         # Runtime state
         self._process: Optional[subprocess.Popen] = None
@@ -107,9 +103,7 @@ class ProcessManager:
         except Exception as e:
             raise ServerStartupError(f"Failed to start server: {e}")
 
-        self.logger.info(
-            f"Server process started with PID {self._process.pid}"
-        )
+        self.logger.info(f"Server process started with PID {self._process.pid}")
 
     def wait_for_url(self) -> str:
         """Wait for the server to report its URL.
@@ -125,30 +119,28 @@ class ProcessManager:
             raise ServerStartupError("Server process not started")
 
         start_time = time.time()
-        
+
         while time.time() - start_time < self.startup_timeout:
             # Use select for non-blocking read with timeout
             ready, _, _ = select.select(
                 [self._process.stdout], [], [], URL_DISCOVERY_POLL_INTERVAL
             )
-            
+
             if ready:
                 line = self._process.stdout.readline()
                 if not line:  # EOF
                     break
-                    
+
                 line = line.rstrip("\n")
                 self.logger.debug(f"[STDOUT] {line}")
-                
+
                 # Check for URL pattern
                 for pattern in URL_PATTERNS:
                     match = re.search(pattern, line, re.IGNORECASE)
                     if match:
                         url = match.group(1)
                         self.base_url = url
-                        self.logger.info(
-                            f"Discovered server URL: {url}"
-                        )
+                        self.logger.info(f"Discovered server URL: {url}")
                         return url
 
         # Check if process died
@@ -169,34 +161,34 @@ class ProcessManager:
 
     def get_output(self, limit: int = 100) -> List[str]:
         """Get recent output from the server (non-blocking).
-        
+
         Args:
             limit: Maximum number of lines to read
-            
+
         Returns:
             List of output lines from the server
         """
         if not self._process:
             return []
-            
+
         output = []
-        
+
         # Check both stdout and stderr
         streams = []
         if self._process.stdout:
             streams.append(self._process.stdout)
         if self._process.stderr:
             streams.append(self._process.stderr)
-            
+
         if not streams:
             return []
-        
+
         while limit > 0:
             # Non-blocking check for available data
             ready, _, _ = select.select(streams, [], [], 0)
             if not ready:
                 break
-                
+
             for stream in ready:
                 line = stream.readline()
                 if line:
@@ -204,7 +196,7 @@ class ProcessManager:
                     limit -= 1
                     if limit <= 0:
                         break
-                        
+
         return output
 
     def shutdown(self) -> None:
@@ -231,7 +223,4 @@ class ProcessManager:
     @property
     def is_running(self) -> bool:
         """Check if the server process is running."""
-        return (
-            self._process is not None
-            and self._process.poll() is None
-        )
+        return self._process is not None and self._process.poll() is None

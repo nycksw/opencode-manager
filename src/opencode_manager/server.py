@@ -65,14 +65,12 @@ class OpencodeServer:
 
         # Setup logging
         self._setup_logging()
-        
+
         # Check version compatibility
         self._check_version_compatibility()
 
         # Initialize components
-        self.isolation_manager = IsolationManager(
-            self.target_dir, self.logger
-        )
+        self.isolation_manager = IsolationManager(self.target_dir, self.logger)
         self.process_manager = ProcessManager(
             self.opencode_binary,
             self.target_dir,
@@ -100,7 +98,7 @@ class OpencodeServer:
         )
         console_handler.setFormatter(console_formatter)
         self.logger.addHandler(console_handler)
-    
+
     def _check_version_compatibility(self) -> None:
         """Check opencode binary version against compatibility configuration."""
         # Load version configuration
@@ -110,42 +108,45 @@ class OpencodeServer:
                 "Version configuration not found. Skipping compatibility check."
             )
             return
-        
+
         try:
             with open(config_path) as f:
                 version_config = json.load(f)
         except Exception as e:
             self.logger.warning(f"Failed to load version config: {e}")
             return
-        
+
         # Get binary version
         try:
             result = subprocess.run(
                 [str(self.opencode_binary), "--version"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             binary_version = result.stdout.strip()
         except Exception as e:
             self.logger.warning(f"Failed to check opencode version: {e}")
             return
-        
+
         # Check compatibility
         recommended = version_config.get("recommended_opencode_version")
         current_sdk = version_config.get("current_sdk_version", "unknown")
-        
+
         if binary_version == recommended:
             self.logger.info(
-                f"Using opencode v{binary_version} (recommended for SDK {current_sdk})"
+                f"Using opencode v{binary_version} "
+                f"(recommended for SDK {current_sdk})"
             )
         elif binary_version.startswith("0.5."):
             self.logger.info(
-                f"Using opencode v{binary_version} (compatible with SDK {current_sdk})"
+                f"Using opencode v{binary_version} "
+                f"(compatible with SDK {current_sdk})"
             )
         elif binary_version.startswith("0.6."):
             self.logger.warning(
-                f"Using opencode v{binary_version} - POTENTIAL COMPATIBILITY ISSUES\n"
+                f"Using opencode v{binary_version} - "
+                f"POTENTIAL COMPATIBILITY ISSUES\n"
                 f"  SDK {current_sdk} was built for opencode v{recommended}\n"
                 f"  Version 0.6.0+ has breaking API changes:\n"
                 f"  - Removed /app endpoints\n"
@@ -199,8 +200,7 @@ class OpencodeServer:
                 time.sleep(HEALTH_CHECK_INTERVAL)
 
         raise TimeoutError(
-            f"Server did not become ready within "
-            f"{self.startup_timeout} seconds"
+            f"Server did not become ready within " f"{self.startup_timeout} seconds"
         )
 
     def __enter__(self):
@@ -236,9 +236,7 @@ class OpencodeServer:
         self.process_manager.shutdown()
 
         # Clean up environment
-        self.isolation_manager.cleanup(
-            preserve=not self.delete_target_dir_on_exit
-        )
+        self.isolation_manager.cleanup(preserve=not self.delete_target_dir_on_exit)
 
     # Public properties
 
@@ -370,9 +368,7 @@ class OpencodeServer:
             )
         return self._session_manager.abort_all_sessions()
 
-    def send_message(
-        self, session_id: str, message: str
-    ) -> Optional[str]:
+    def send_message(self, session_id: str, message: str) -> Optional[str]:
         """Send a message to a session and get response.
 
         Args:
@@ -413,10 +409,10 @@ class OpencodeServer:
 
     def get_opencode_version(self) -> str:
         """Get version of opencode binary in isolated environment.
-        
+
         Returns:
             Version string (e.g., "0.6.3")
-            
+
         Raises:
             RuntimeError: If server not started
         """
@@ -424,8 +420,8 @@ class OpencodeServer:
             raise RuntimeError(
                 "Server not started. Use context manager or call __enter__"
             )
-            
-        if not hasattr(self, '_version'):
+
+        if not hasattr(self, "_version"):
             # Run version check with isolation environment vars
             env = self.isolation_manager.get_environment()
             result = subprocess.run(
@@ -433,7 +429,7 @@ class OpencodeServer:
                 env=env,
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             # Output is just "0.6.3" - clean version string
             self._version = result.stdout.strip()

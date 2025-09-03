@@ -27,9 +27,7 @@ class IsolationManager:
         self.logger = logger
 
         if self.target_dir.exists():
-            raise FileExistsError(
-                f"Target directory already exists: {self.target_dir}"
-            )
+            raise FileExistsError(f"Target directory already exists: {self.target_dir}")
 
         self.xdg_dirs: Dict[str, Path] = {}
         self.isolated_dirs: Dict[str, Path] = {}
@@ -59,13 +57,9 @@ class IsolationManager:
                 f"Config directory not found: {opencode_config_dir}"
             )
         if not opencode_json.exists():
-            raise ConfigurationError(
-                f"Config file not found: {opencode_json}"
-            )
+            raise ConfigurationError(f"Config file not found: {opencode_json}")
 
-        self.logger.info(
-            f"Setting up isolated environment in {self.target_dir}"
-        )
+        self.logger.info(f"Setting up isolated environment in {self.target_dir}")
 
         # Create comprehensive isolated directory structure
         self.xdg_dirs = {
@@ -85,9 +79,7 @@ class IsolationManager:
         all_dirs = {**self.xdg_dirs, **self.isolated_dirs}
         for name, path in all_dirs.items():
             path.mkdir(parents=True, exist_ok=False)
-            self.logger.debug(
-                f"Created isolated {name} directory: {path}"
-            )
+            self.logger.debug(f"Created isolated {name} directory: {path}")
 
             # Set appropriate permissions for runtime dir
             if name == "runtime":
@@ -122,13 +114,9 @@ class IsolationManager:
             IsolationError: If isolation requirements are violated
         """
         real_home = Path.home()
-        real_xdg_config = Path(
-            os.environ.get("XDG_CONFIG_HOME", real_home / ".config")
-        )
+        real_xdg_config = Path(os.environ.get("XDG_CONFIG_HOME", real_home / ".config"))
         real_xdg_data = Path(
-            os.environ.get(
-                "XDG_DATA_HOME", real_home / ".local" / "share"
-            )
+            os.environ.get("XDG_DATA_HOME", real_home / ".local" / "share")
         )
 
         # Check that target_dir is not in any sensitive location
@@ -141,9 +129,8 @@ class IsolationManager:
         ]
 
         for sensitive_path in sensitive_paths:
-            if (
-                sensitive_path.exists()
-                and self.target_dir.is_relative_to(sensitive_path)
+            if sensitive_path.exists() and self.target_dir.is_relative_to(
+                sensitive_path
             ):
                 raise IsolationError(
                     f"ISOLATION VIOLATION: Target directory "
@@ -161,8 +148,7 @@ class IsolationManager:
                 )
 
         self.logger.info(
-            "Isolation verification passed - "
-            "all directories are properly isolated"
+            "Isolation verification passed - " "all directories are properly isolated"
         )
 
     def get_environment(self) -> Dict[str, str]:
@@ -209,11 +195,7 @@ class IsolationManager:
             preserve: If True, preserve the target directory
         """
         if preserve:
-            self.logger.info(
-                f"Preserving target directory: {self.target_dir}"
-            )
+            self.logger.info(f"Preserving target directory: {self.target_dir}")
         else:
-            self.logger.info(
-                f"Removing target directory: {self.target_dir}"
-            )
+            self.logger.info(f"Removing target directory: {self.target_dir}")
             shutil.rmtree(self.target_dir)

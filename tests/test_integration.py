@@ -19,7 +19,6 @@ from typing import Any, Dict
 
 import pytest
 import requests
-
 from opencode_manager import OpencodeServer
 
 
@@ -31,19 +30,22 @@ def check_opencode_version():
             with open(config_file) as f:
                 config = json.load(f)
             expected = config["recommended_opencode_version"]
-            
+
             # Check version of actual test binary
             result = subprocess.run(
                 ["test_resources/opencode", "--version"],
                 capture_output=True,
                 text=True,
-                timeout=5
+                timeout=5,
             )
             actual = result.stdout.strip()
-            
+
             if actual != expected:
-                print(f"\nWARNING: Testing with opencode {actual} (recommended: {expected})")
-                print(f"   If tests fail, consider: make update-api-spec\n")
+                print(
+                    f"\nWARNING: Testing with opencode {actual} "
+                    f"(recommended: {expected})"
+                )
+                print("   If tests fail, consider: make update-api-spec\n")
         except Exception:
             pass  # Don't break tests over version display
 
@@ -63,15 +65,15 @@ def get_test_config() -> Dict[str, Any]:
     if not test_resources.exists():
         pytest.skip(
             "\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
             "  Integration tests require test configuration files\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
             "\n"
             "  The test_resources/ directory is missing.\n"
             "\n"
             "  This should have been included with the repository.\n"
             "  Please check that you have the complete source.\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
         )
 
     # Check for required files
@@ -91,9 +93,9 @@ def get_test_config() -> Dict[str, Any]:
         # Provide helpful instructions for missing files
         pytest.skip(
             "\n\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
             "  Integration tests require configuration files\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
             "\n"
             f"  Missing files in test_resources/:\n"
             f"    • {', '.join(missing)}\n"
@@ -105,7 +107,7 @@ def get_test_config() -> Dict[str, Any]:
             "  This will safely copy your opencode configuration files\n"
             "  for testing. Your original files will not be modified.\n"
             "\n"
-            "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+            "============================================================\n"
         )
 
     # All files exist - return configuration
@@ -122,7 +124,7 @@ def get_test_config() -> Dict[str, Any]:
 @pytest.mark.integration
 class TestIntegrationWithRealServer:
     """Integration tests that run a real opencode server."""
-    
+
     def setup_class(self):
         """Check version once before all tests."""
         check_opencode_version()
@@ -204,8 +206,7 @@ class TestIntegrationWithRealServer:
                 )
 
                 response = session.send_message(
-                    "Say exactly: 'Integration test successful' "
-                    "and nothing else"
+                    "Say exactly: 'Integration test successful' " "and nothing else"
                 )
 
                 print("\nAssistant response:")
@@ -228,39 +229,41 @@ class TestIntegrationWithRealServer:
                 print("\nDeleting session...")
                 session.delete()
                 print("Session deleted")
-                
+
                 # Capture version and API spec if requested
                 if os.environ.get("UPDATE_API_SPEC"):
                     print("\nUpdating API spec...")
                     try:
                         # Get version (runs in isolation)
                         version = server.get_opencode_version()
-                        
+
                         # Update version in config
                         config_file = Path("opencode_versions.json")
                         with open(config_file) as f:
                             config = json.load(f)
-                        
+
                         if config["recommended_opencode_version"] != version:
-                            print(f"Warning: Version mismatch in config")
+                            print("Warning: Version mismatch in config")
                             print(f"  Config: {config['recommended_opencode_version']}")
                             print(f"  Binary: {version}")
-                        
+
                         print(f"Captured version: {version}")
-                        
+
                         # Get API spec from running server
                         response = requests.get(f"{server.base_url}/doc")
                         response.raise_for_status()
-                        
+
                         # Try to parse as JSON
                         api_spec = response.json()
                         with open("opencode_api.json", "w") as f:
                             json.dump(api_spec, f, indent=2)
-                        
+
                         print(f"Updated API spec for opencode {version}")
                     except Exception as e:
                         print(f"Warning: Could not update API spec: {e}")
-                        print("Note: The /doc endpoint may not be available in this version")
+                        print(
+                            "Note: /doc endpoint may not be available in this version"
+                        )
 
                 print("\n" + "=" * 70)
                 print("Integration test completed successfully!")
@@ -337,9 +340,7 @@ class TestIntegrationWithRealServer:
             print("\nChecking message history...")
             messages = session.get_messages()
             print(f"   Total messages: {len(messages)}")
-            assert (
-                len(messages) >= 2
-            ), "Should have at least user message and response"
+            assert len(messages) >= 2, "Should have at least user message and response"
 
             # Track new messages
             print("\nGetting new messages (baseline)...")
@@ -359,9 +360,7 @@ class TestIntegrationWithRealServer:
             print("\nGetting new messages since last check...")
             new_msgs = session.get_new_messages()
             print(f"   New messages: {len(new_msgs)}")
-            assert (
-                len(new_msgs) >= 2
-            ), "Should have new user message and response"
+            assert len(new_msgs) >= 2, "Should have new user message and response"
 
             # Show message types
             for i, msg in enumerate(new_msgs[:4], 1):  # Show first 4

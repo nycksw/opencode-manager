@@ -3,7 +3,6 @@
 from unittest.mock import Mock, patch
 
 import pytest
-
 from opencode_manager import OpencodeServer
 
 
@@ -154,9 +153,7 @@ class TestOpencodeServer:
 
         assert session.id == "test-session-id"
         assert session.title == "Test Session"
-        mock_session_manager.create_session.assert_called_once_with(
-            "Test Session"
-        )
+        mock_session_manager.create_session.assert_called_once_with("Test Session")
 
     @patch("opencode_manager.session_manager.SessionManager")
     def test_session_list(

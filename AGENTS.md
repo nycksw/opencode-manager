@@ -27,7 +27,7 @@ The server must NEVER touch the user's real XDG directories or home directory. A
 - Follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
 - Follow the [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html) for scripts
 - Python 3.9+ with type hints for all public methods
-- Line length: 80 characters (Google standard)
+- Line length: 88 characters (Black's default)
 
 ### Naming and Formatting
 - Always use lowercase `opencode` (never OpenCode or Opencode)
@@ -58,7 +58,7 @@ The server must NEVER touch the user's real XDG directories or home directory. A
 
 Pre-commit automatically runs:
 - Unit tests (EVERY commit - no broken commits allowed!)
-- Black formatter (80 char lines)
+- Black formatter (88 char lines - Black's default)
 - Ruff linter
 - Pyright type checker
 - Trailing whitespace removal

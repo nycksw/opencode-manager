@@ -35,10 +35,10 @@ markers = [
 ]
 
 [tool.black]
-line-length = 80
+line-length = 88
 
 [tool.ruff]
-line-length = 80
+line-length = 88
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]

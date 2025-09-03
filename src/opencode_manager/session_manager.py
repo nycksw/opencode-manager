@@ -50,9 +50,7 @@ class SessionManager:
             body["title"] = title
 
         try:
-            session_data = self.client.session.create(
-                extra_body=body if body else None
-            )
+            session_data = self.client.session.create(extra_body=body if body else None)
         except Exception as e:
             raise SessionError(f"Failed to create session: {e}")
 
@@ -156,13 +154,9 @@ class SessionManager:
             try:
                 self.abort_session(session.id)
             except SessionError as e:
-                self.logger.error(
-                    f"Failed to abort session {session.id}: {e}"
-                )
+                self.logger.error(f"Failed to abort session {session.id}: {e}")
 
-    def send_message(
-        self, session_id: str, message: str
-    ) -> Optional[str]:
+    def send_message(self, session_id: str, message: str) -> Optional[str]:
         """Send a message to a session and get response.
 
         Args:
@@ -202,15 +196,16 @@ class SessionManager:
                         text_parts.append(getattr(part, "text", ""))
                     elif hasattr(part, "text"):
                         text_parts.append(str(getattr(part, "text", "")))
-                
-                # Return joined text if we found any, otherwise try direct text attribute
+
+                # Return joined text if we found any,
+                # otherwise try direct text attribute
                 if text_parts:
                     return "\n".join(text_parts)
-            
+
             # If no parts, try to get text directly from response
             if hasattr(response, "text"):
                 return str(getattr(response, "text"))
-            
+
             # Last resort: return string representation if response exists
             return str(response) if response else None
         return None

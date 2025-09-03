@@ -8,11 +8,11 @@ import sys
 from pathlib import Path
 
 # Terminal colors
-RED = '\033[0;31m'
-GREEN = '\033[0;32m'
-YELLOW = '\033[0;33m'
-BLUE = '\033[0;34m'
-NC = '\033[0m'  # No Color
+RED = "\033[0;31m"
+GREEN = "\033[0;32m"
+YELLOW = "\033[0;33m"
+BLUE = "\033[0;34m"
+NC = "\033[0m"  # No Color
 
 
 def setup_configs(target_dir: Path):
@@ -33,13 +33,13 @@ def setup_configs(target_dir: Path):
     auth_dest = target_dir / "auth.json"
     shutil.copy2(auth_source, auth_dest)
     auth_dest.chmod(0o600)
-    print(f"{GREEN}  ✓ Copied auth.json (permissions: 600){NC}")
+    print(f"{GREEN}  [OK] Copied auth.json (permissions: 600){NC}")
 
     # Config file
     config_sources = [
         Path.home() / ".config/opencode/opencode.json",
         Path.cwd() / "opencode.json",
-        Path.cwd().parent / "opencode.json"
+        Path.cwd().parent / "opencode.json",
     ]
 
     config_source = None
@@ -52,7 +52,7 @@ def setup_configs(target_dir: Path):
         config_dest = target_dir / "opencode.json"
         shutil.copy2(config_source, config_dest)
         config_dest.chmod(0o600)
-        print(f"{GREEN}  ✓ Copied opencode.json (permissions: 600){NC}")
+        print(f"{GREEN}  [OK] Copied opencode.json (permissions: 600){NC}")
     else:
         print(f"{YELLOW}  ! No opencode.json found (will use defaults){NC}")
 
@@ -63,7 +63,7 @@ def setup_configs(target_dir: Path):
         if opencode_dir_dest.exists():
             shutil.rmtree(opencode_dir_dest)
         shutil.copytree(opencode_dir_source, opencode_dir_dest)
-        print(f"{GREEN}  ✓ Copied .opencode directory{NC}")
+        print(f"{GREEN}  [OK] Copied .opencode directory{NC}")
 
     return True
 
@@ -93,9 +93,7 @@ def setup_binary(target_dir: Path, version: str = None):
         if bin_opencode.exists():
             # Check version of bin/opencode
             result = subprocess.run(
-                [str(bin_opencode), "--version"],
-                capture_output=True,
-                text=True
+                [str(bin_opencode), "--version"], capture_output=True, text=True
             )
             bin_version = result.stdout.strip()
 
@@ -105,7 +103,7 @@ def setup_binary(target_dir: Path, version: str = None):
                     binary_path.unlink()
                 binary_path.symlink_to("../bin/opencode")
                 print(
-                    f"{GREEN}  ✓ Created symlink to "
+                    f"{GREEN}  [OK] Created symlink to "
                     f"bin/opencode (v{bin_version}){NC}"
                 )
                 return True
@@ -126,15 +124,13 @@ def setup_binary(target_dir: Path, version: str = None):
         else:
             # Check version
             result = subprocess.run(
-                [str(binary_path), "--version"],
-                capture_output=True,
-                text=True
+                [str(binary_path), "--version"], capture_output=True, text=True
             )
             existing_version = result.stdout.strip()
 
             if existing_version == version:
                 print(
-                    f"{GREEN}  ✓ Already have correct version "
+                    f"{GREEN}  [OK] Already have correct version "
                     f"(v{existing_version}){NC}"
                 )
                 return True
@@ -144,7 +140,7 @@ def setup_binary(target_dir: Path, version: str = None):
                     f"have v{existing_version}, need v{version}{NC}"
                 )
                 response = input("    Replace with correct version? (y/N): ")
-                if response.lower() != 'y':
+                if response.lower() != "y":
                     return True
                 binary_path.unlink()
 
@@ -154,18 +150,23 @@ def setup_binary(target_dir: Path, version: str = None):
     # Use the download script
     download_script = Path(__file__).parent / "download_opencode.py"
     result = subprocess.run(
-        [sys.executable, str(download_script),
-         "--version", version,
-         "--output-dir", str(target_dir)],
+        [
+            sys.executable,
+            str(download_script),
+            "--version",
+            version,
+            "--output-dir",
+            str(target_dir),
+        ],
         capture_output=True,
-        text=True
+        text=True,
     )
 
     if result.returncode != 0:
-        print(f"{RED}  ✗ Download failed: {result.stderr}{NC}")
+        print(f"{RED}  [FAIL] Download failed: {result.stderr}{NC}")
         return False
 
-    print(f"{GREEN}  ✓ Downloaded opencode v{version}{NC}")
+    print(f"{GREEN}  [OK] Downloaded opencode v{version}{NC}")
     return True
 
 
@@ -179,17 +180,14 @@ def main():
     parser.add_argument(
         "--test-resources",
         action="store_true",
-        help="Setup test_resources directory"
+        help="Setup test_resources directory",
     )
     parser.add_argument(
         "--bin-dir",
         action="store_true",
-        help="Setup bin directory with recommended opencode version"
+        help="Setup bin directory with recommended opencode version",
     )
-    parser.add_argument(
-        "--version",
-        help="Specific opencode version to install"
-    )
+    parser.add_argument("--version", help="Specific opencode version to install")
 
     args = parser.parse_args()
 
@@ -226,7 +224,7 @@ def main():
 
         print(f"\n{YELLOW}{'='*60}")
         print("[!] WARNING: Integration tests use REAL API calls")
-        print("="*60 + NC)
+        print("=" * 60 + NC)
         print("\nIntegration tests will:")
         print("  • Make real requests to your configured AI provider")
         print("  • Consume API credits (costs money)")
@@ -235,7 +233,7 @@ def main():
         print("")
 
         response = input("Continue with test setup? (y/N) ")
-        if response.lower() != 'y':
+        if response.lower() != "y":
             print("Cancelled.")
         else:
             if not setup_configs(test_dir):
@@ -245,7 +243,7 @@ def main():
                 success = False
 
     if success:
-        print(f"\n{GREEN}✅ Setup complete!{NC}")
+        print(f"\n{GREEN}[SUCCESS] Setup complete!{NC}")
 
         if args.bin_dir:
             bin_path = Path.cwd() / "bin" / "opencode"
@@ -261,7 +259,7 @@ def main():
             print(f"  {BLUE}make test-integration{NC}")
             print(f"  {BLUE}uv run pytest tests/test_integration.py{NC}")
     else:
-        print(f"\n{RED}❌ Setup had errors{NC}")
+        print(f"\n{RED}[ERROR] Setup had errors{NC}")
         return 1
 
     return 0

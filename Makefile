@@ -22,11 +22,20 @@ help:
 	@echo "  OPENCODE_USE_REAL_CONFIG=true make test-integration"
 
 install:
-	uv sync
-	@if [ -f package.json ]; then \
-		echo "Installing Node.js dev tools (pyright)..."; \
-		npm install; \
+	@echo "Installing dependencies with uv..."
+	@uv sync --all-extras
+	@echo "Installing npm packages for development tools..."
+	@npm install
+	@echo ""
+	@echo "Installing pre-commit hooks..."
+	@if [ -d .git ]; then \
+		uv run python -m pre_commit install; \
+		echo "Pre-commit hooks installed successfully!"; \
+	else \
+		echo "Skipping: Not a git repository"; \
 	fi
+	@echo ""
+	@echo "Setup complete!"
 	@if command -v pre-commit &> /dev/null; then \
 		echo "Installing pre-commit hooks..."; \
 		pre-commit install --install-hooks; \

@@ -45,9 +45,7 @@ class ModelSelector:
                 if model_str := config.get("model", ""):
                     parts = model_str.split("/")
                     if len(parts) == 2:
-                        self.logger.info(
-                            f"Using configured model: {model_str}"
-                        )
+                        self.logger.info(f"Using configured model: {model_str}")
                         return (parts[0], parts[1])
         except (FileNotFoundError, json.JSONDecodeError) as e:
             self.logger.debug(f"Could not load model from config: {e}")
@@ -62,20 +60,14 @@ class ModelSelector:
         # Find first available cheap model
         for provider, model in CHEAP_MODELS.items():
             if provider in auth_providers:
-                self.logger.info(
-                    f"Using {provider}/{model} (cheap model)"
-                )
+                self.logger.info(f"Using {provider}/{model} (cheap model)")
                 return (provider, model)
 
         # Fallback to first available provider with default model
         if auth_providers:
             provider = next(iter(auth_providers))
-            model = CHEAP_MODELS.get(
-                provider, "claude-3-5-haiku-20241022"
-            )
+            model = CHEAP_MODELS.get(provider, "claude-3-5-haiku-20241022")
             self.logger.warning(f"Using fallback: {provider}/{model}")
             return (provider, model)
 
-        raise ConfigurationError(
-            "No valid authentication providers found"
-        )
+        raise ConfigurationError("No valid authentication providers found")

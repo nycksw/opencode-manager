@@ -57,7 +57,7 @@ def download_opencode(version: str = None, output_dir: Path = None):
         if "INCOMPATIBLE" in release_info["compatibility"]:
             print(f"Warning: {release_info['compatibility']}")
             response = input("Continue anyway? (y/N): ")
-            if response.lower() != 'y':
+            if response.lower() != "y":
                 return False
 
     # Get platform-specific download info
@@ -97,7 +97,7 @@ def download_opencode(version: str = None, output_dir: Path = None):
     # Extract
     print(f"Extracting {zip_path}...")
     try:
-        with zipfile.ZipFile(zip_path, 'r') as zip_ref:
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(output_dir)
         print(f"Extracted to {output_dir}")
     except Exception as e:
@@ -133,9 +133,7 @@ def download_opencode(version: str = None, output_dir: Path = None):
     # Verify version
     if versioned_binary.exists():
         result = subprocess.run(
-            [str(versioned_binary), "--version"],
-            capture_output=True,
-            text=True
+            [str(versioned_binary), "--version"], capture_output=True, text=True
         )
         installed_version = result.stdout.strip()
         print(f"\nInstalled opencode version: {installed_version}")
@@ -155,17 +153,12 @@ def main():
     """Main entry point."""
     import argparse
 
-    parser = argparse.ArgumentParser(
-        description="Download specific opencode version"
+    parser = argparse.ArgumentParser(description="Download specific opencode version")
+    parser.add_argument(
+        "--version", help="opencode version to download (default: from config)"
     )
     parser.add_argument(
-        "--version",
-        help="opencode version to download (default: from config)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        help="Output directory (default: ./bin)",
-        type=Path
+        "--output-dir", help="Output directory (default: ./bin)", type=Path
     )
 
     args = parser.parse_args()

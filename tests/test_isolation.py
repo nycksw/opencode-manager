@@ -10,7 +10,6 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
-
 from opencode_manager import OpencodeServer
 
 
@@ -37,9 +36,7 @@ class TestXDGIsolation:
         mock_paths["opencode_binary"].touch()
         mock_paths["opencode_binary"].chmod(0o755)
 
-    def test_creates_all_isolation_directories(
-        self, mock_paths, setup_mock_files
-    ):
+    def test_creates_all_isolation_directories(self, mock_paths, setup_mock_files):
         """Test that all isolation directories are created."""
         server = OpencodeServer(
             target_dir=mock_paths["target_dir"],
@@ -69,17 +66,13 @@ class TestXDGIsolation:
         runtime_dir = mock_paths["target_dir"] / ".runtime"
         assert oct(runtime_dir.stat().st_mode)[-3:] == "700"
 
-    def test_isolation_verification_prevents_home_directory_usage(
-        self, tmp_path
-    ):
+    def test_isolation_verification_prevents_home_directory_usage(self, tmp_path):
         """Test that server refuses to use real home directory as target."""
         # Try to use a subdirectory of home - use a unique name to avoid
         # conflicts
         import uuid
 
-        home_subdir = (
-            Path.home() / ".config" / f"test_violation_{uuid.uuid4().hex[:8]}"
-        )
+        home_subdir = Path.home() / ".config" / f"test_violation_{uuid.uuid4().hex[:8]}"
 
         auth_file = tmp_path / "auth.json"
         auth_file.write_text("{}")
@@ -140,7 +133,7 @@ class TestXDGIsolation:
             mock_paths["opencode_config_dir"],
             mock_paths["opencode_json"],
         )
-        
+
         env = server.isolation_manager.get_environment()
         server.process_manager.start(env)
 
@@ -157,9 +150,7 @@ class TestXDGIsolation:
         )
 
         assert "XDG_DATA_HOME" in env
-        assert env["XDG_DATA_HOME"] == str(
-            mock_paths["target_dir"] / ".oc" / "data"
-        )
+        assert env["XDG_DATA_HOME"] == str(mock_paths["target_dir"] / ".oc" / "data")
 
         assert "XDG_CACHE_HOME" in env
         assert env["XDG_CACHE_HOME"] == str(mock_paths["target_dir"] / ".cache")
@@ -177,9 +168,7 @@ class TestXDGIsolation:
 
         # Verify we're NOT copying os.environ
         # The environment should be minimal
-        assert (
-            len(env) < 20
-        )  # Should have way fewer variables than full environment
+        assert len(env) < 20  # Should have way fewer variables than full environment
 
     def test_no_environment_leakage(self, mock_paths, setup_mock_files):
         """Test that user environment variables don't leak into subprocess."""
@@ -210,7 +199,7 @@ class TestXDGIsolation:
                     mock_paths["opencode_config_dir"],
                     mock_paths["opencode_json"],
                 )
-                
+
                 env = server.isolation_manager.get_environment()
                 server.process_manager.start(env)
 
@@ -232,9 +221,7 @@ class TestXDGIsolation:
             # Clean up
             del os.environ["TEST_LEAK_VAR"]
 
-    def test_auth_file_is_in_isolated_location(
-        self, mock_paths, setup_mock_files
-    ):
+    def test_auth_file_is_in_isolated_location(self, mock_paths, setup_mock_files):
         """Test that auth.json is copied to isolated XDG data directory."""
         server = OpencodeServer(
             target_dir=mock_paths["target_dir"],

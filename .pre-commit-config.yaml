@@ -19,19 +19,20 @@ repos:
       - id: mixed-line-ending
         args: ['--fix=lf']
 
-  # Python formatting with black (Google style: 80 chars)
+  # Python formatting with black (default: 88 chars)
   - repo: https://github.com/psf/black
     rev: 24.3.0
     hooks:
       - id: black
-        args: ['--line-length=80']
+        # Using Black's default line length of 88
 
   # Python linting with ruff
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.4
     hooks:
       - id: ruff
-        args: ['--fix', '--line-length=80']
+        args: ['--fix']
+        # Line length configured in pyproject.toml (88)
 
   # Local hooks
   - repo: local
