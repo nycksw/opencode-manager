@@ -1,5 +1,6 @@
 """opencode-manager: Manage isolated opencode server instances"""
 
+from .client import OpencodeClient
 from .exceptions import (
     ConfigurationError,
     IsolationError,
@@ -12,6 +13,7 @@ from .server import OpencodeServer
 from .session import Session
 
 __all__ = [
+    "OpencodeClient",
     "OpencodeServer",
     "Session",
     "OpencodeManagerError",
