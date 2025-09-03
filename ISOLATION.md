@@ -84,7 +84,7 @@ The library performs runtime checks to ensure:
 
 ```python
 from pathlib import Path
-from opencode_server import OpencodeServer
+from opencode_manager import OpencodeServer
 
 # Use a temporary directory for complete isolation
 with OpencodeServer(

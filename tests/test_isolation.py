@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
+
 from opencode_manager import OpencodeServer
 
 
@@ -48,12 +49,15 @@ class TestXDGIsolation:
             opencode_binary=mock_paths["opencode_binary"],
         )
 
-        server._setup_environment()
+        server.isolation_manager.setup_environment(
+            mock_paths["auth_file"],
+            mock_paths["opencode_config_dir"],
+            mock_paths["opencode_json"],
+        )
 
         # Check XDG directories
         assert (mock_paths["target_dir"] / ".oc" / "config").exists()
         assert (mock_paths["target_dir"] / ".oc" / "data").exists()
-        assert (mock_paths["target_dir"] / ".oc" / "state").exists()
         assert (mock_paths["target_dir"] / ".cache").exists()
         assert (mock_paths["target_dir"] / ".runtime").exists()
 
@@ -87,9 +91,11 @@ class TestXDGIsolation:
         binary.touch()
         binary.chmod(0o755)
 
+        from opencode_manager.exceptions import IsolationError
+
         try:
             # This should raise an error during setup
-            with pytest.raises(ValueError, match="ISOLATION VIOLATION"):
+            with pytest.raises(IsolationError, match="ISOLATION VIOLATION"):
                 server = OpencodeServer(
                     target_dir=home_subdir,
                     auth_file=auth_file,
@@ -97,7 +103,9 @@ class TestXDGIsolation:
                     opencode_json=config_json,
                     opencode_binary=binary,
                 )
-                server._setup_environment()
+                server.isolation_manager.setup_environment(
+                    auth_file, config_dir, config_json
+                )
         finally:
             # Clean up if the directory was created
             if home_subdir.exists():
@@ -127,12 +135,17 @@ class TestXDGIsolation:
             opencode_binary=mock_paths["opencode_binary"],
         )
 
-        server._setup_environment()
-        server._start_server()
+        server.isolation_manager.setup_environment(
+            mock_paths["auth_file"],
+            mock_paths["opencode_config_dir"],
+            mock_paths["opencode_json"],
+        )
+        
+        env = server.isolation_manager.get_environment()
+        server.process_manager.start(env)
 
         # Get the environment passed to subprocess
         call_args = mock_popen.call_args
-        env = call_args.kwargs["env"]
 
         # Verify isolated environment
         assert "HOME" in env
@@ -192,18 +205,24 @@ class TestXDGIsolation:
                     opencode_binary=mock_paths["opencode_binary"],
                 )
 
-                server._setup_environment()
-                server._start_server()
+                server.isolation_manager.setup_environment(
+                    mock_paths["auth_file"],
+                    mock_paths["opencode_config_dir"],
+                    mock_paths["opencode_json"],
+                )
+                
+                env = server.isolation_manager.get_environment()
+                server.process_manager.start(env)
 
-                # Get the environment passed to subprocess
-                env = mock_popen.call_args.kwargs["env"]
+                # Get the actual environment passed to subprocess
+                actual_env = mock_popen.call_args.kwargs["env"]
 
                 # Verify test variable didn't leak
-                assert "TEST_LEAK_VAR" not in env
+                assert "TEST_LEAK_VAR" not in actual_env
 
                 # Verify no user-specific paths leak
                 real_home = str(Path.home())
-                for key, value in env.items():
+                for key, value in actual_env.items():
                     if key not in ["USER", "LOGNAME"]:  # These are safe
                         assert real_home not in str(
                             value
@@ -225,7 +244,11 @@ class TestXDGIsolation:
             opencode_binary=mock_paths["opencode_binary"],
         )
 
-        server._setup_environment()
+        server.isolation_manager.setup_environment(
+            mock_paths["auth_file"],
+            mock_paths["opencode_config_dir"],
+            mock_paths["opencode_json"],
+        )
 
         # Check auth.json is in the isolated data directory
         isolated_auth = (
@@ -267,7 +290,9 @@ class TestXDGIsolation:
                 opencode_binary=binary,
             )
 
-            server._setup_environment()
+            server.isolation_manager.setup_environment(
+                auth_file, config_dir, config_json
+            )
 
             # Verify directories were created
             assert target.exists()

@@ -3,21 +3,21 @@
 from typing import TYPE_CHECKING, List, Optional
 
 if TYPE_CHECKING:
-    from .server import OpencodeServer
+    from .session_manager import SessionManager
 
 
 class Session:
     """Wrapper around a session with convenience methods and message
     tracking."""
 
-    def __init__(self, server: "OpencodeServer", session_data):
+    def __init__(self, manager: "SessionManager", session_data):
         """Initialize session wrapper.
 
         Args:
-            server: The OpencodeServer instance managing this session
+            manager: The SessionManager instance managing this session
             session_data: Raw session data from the API
         """
-        self._server = server
+        self._manager = manager
         self._data = session_data
         self._last_read_id = None
         self._message_cache = []
@@ -46,7 +46,7 @@ class Session:
         Returns:
             The assistant's response text, or None if no response
         """
-        return self._server.send_message(self.id, message)
+        return self._manager.send_message(self.id, message)
 
     def get_messages(self, limit: Optional[int] = None) -> List:
         """Get all or last N messages from the session.
@@ -57,7 +57,7 @@ class Session:
         Returns:
             List of message objects
         """
-        messages = self._server.get_messages(self.id)
+        messages = self._manager.get_messages(self.id)
 
         # Update last read ID if we got messages
         if messages and len(messages) > 0:
@@ -80,7 +80,7 @@ class Session:
         Returns:
             List of new message objects since last read
         """
-        all_messages = self._server.get_messages(self.id)
+        all_messages = self._manager.get_messages(self.id)
 
         if not self._last_read_id:
             # First read - return all and update cursor
@@ -119,19 +119,15 @@ class Session:
         Args:
             new_title: The new title for the session
         """
-        # SST SDK doesn't support updating sessions
-        self._server.logger.warning(
-            f"Session rename not supported in SST SDK. "
-            f"Would rename {self.id} to: {new_title}"
-        )
+        self._manager.update_session(self.id, new_title)
 
     def abort(self):
         """Abort this session (stop any running operations)."""
-        self._server.abort_session(self.id)
+        self._manager.abort_session(self.id)
 
     def delete(self):
         """Delete this session permanently."""
-        self._server.delete_session(self.id)
+        self._manager.delete_session(self.id)
 
     def __repr__(self) -> str:
         """String representation of the session."""

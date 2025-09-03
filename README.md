@@ -2,7 +2,7 @@
 
 Python library for managing isolated opencode server instances with full lifecycle control.
 
-**🔒 Complete XDG Isolation:** Server instances run in fully isolated environments, never touching your personal files or directories. [Learn more →](ISOLATION.md)
+** Complete XDG Isolation:** Server instances run in fully isolated environments, never touching your personal files or directories. [Learn more →](ISOLATION.md)
 
 ## Prerequisites
 

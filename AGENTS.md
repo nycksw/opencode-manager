@@ -1,5 +1,16 @@
 # Development Guidelines for opencode-manager
 
+## Production Use Case
+
+**opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the interface for such a system.
+
+### Key Design Decisions
+- **No Threading**: Single sever, simple polling model; opencode handles its own concurrency internally
+- **No Streaming**: Messages are exchanged in discrete request/response cycles
+- **Minimal Abstractions**: No premature optimization or unused interfaces
+- **Isolation Focus**: Prevents pollution of user's actual opencode XDG directories
+- **Simplicity First**: Avoid YAGNI violations - build only what's needed for the stated use case above
+
 ## Core Principles
 
 ### The Golden Rule: Isolation is Sacred

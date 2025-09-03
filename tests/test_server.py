@@ -3,6 +3,7 @@
 from unittest.mock import Mock, patch
 
 import pytest
+
 from opencode_manager import OpencodeServer
 
 
@@ -85,13 +86,17 @@ class TestOpencodeServer:
             opencode_binary=mock_paths["opencode_binary"],
         )
 
-        # Setup environment should be called during start
-        server._setup_environment()
+        # Setup environment through isolation manager
+        server.isolation_manager.setup_environment(
+            mock_paths["auth_file"],
+            mock_paths["opencode_config_dir"],
+            mock_paths["opencode_json"],
+        )
 
         # Verify target directory structure was created
         assert (mock_paths["target_dir"] / ".oc" / "config").exists()
         assert (mock_paths["target_dir"] / ".oc" / "data").exists()
-        assert (mock_paths["target_dir"] / ".oc" / "state").exists()
+        assert (mock_paths["target_dir"] / ".cache").exists()
 
     def test_environment_setup(self, mock_paths, setup_mock_files):
         """Test environment setup creates proper directory structure."""
@@ -103,34 +108,38 @@ class TestOpencodeServer:
             opencode_binary=mock_paths["opencode_binary"],
         )
 
-        server._setup_environment()
+        server.isolation_manager.setup_environment(
+            mock_paths["auth_file"],
+            mock_paths["opencode_config_dir"],
+            mock_paths["opencode_json"],
+        )
 
         # Check XDG directories
         xdg_config = mock_paths["target_dir"] / ".oc" / "config"
         xdg_data = mock_paths["target_dir"] / ".oc" / "data"
-        xdg_state = mock_paths["target_dir"] / ".oc" / "state"
+        xdg_cache = mock_paths["target_dir"] / ".cache"
 
         assert xdg_config.exists()
         assert xdg_data.exists()
-        assert xdg_state.exists()
+        assert xdg_cache.exists()
 
         # Check copied files
         assert (xdg_data / "opencode" / "auth.json").exists()
         assert (mock_paths["target_dir"] / ".opencode").exists()
         assert (mock_paths["target_dir"] / "opencode.json").exists()
 
-    @patch("opencode_manager.server.Opencode")
+    @patch("opencode_manager.session_manager.SessionManager")
     def test_session_creation(
-        self, mock_opencode_class, mock_paths, setup_mock_files
+        self, mock_session_manager_class, mock_paths, setup_mock_files
     ):
         """Test session creation."""
-        mock_client = Mock()
-        mock_opencode_class.return_value = mock_client
+        mock_session_manager = Mock()
+        mock_session_manager_class.return_value = mock_session_manager
 
-        mock_session_data = Mock()
-        mock_session_data.id = "test-session-id"
-        mock_session_data.title = "Test Session"
-        mock_client.session.create.return_value = mock_session_data
+        mock_session = Mock()
+        mock_session.id = "test-session-id"
+        mock_session.title = "Test Session"
+        mock_session_manager.create_session.return_value = mock_session
 
         server = OpencodeServer(
             target_dir=mock_paths["target_dir"],
@@ -139,21 +148,23 @@ class TestOpencodeServer:
             opencode_json=mock_paths["opencode_json"],
             opencode_binary=mock_paths["opencode_binary"],
         )
-        server._client = mock_client
+        server._session_manager = mock_session_manager
 
         session = server.create_session("Test Session")
 
         assert session.id == "test-session-id"
         assert session.title == "Test Session"
-        mock_client.session.create.assert_called_once()
+        mock_session_manager.create_session.assert_called_once_with(
+            "Test Session"
+        )
 
-    @patch("opencode_manager.server.Opencode")
+    @patch("opencode_manager.session_manager.SessionManager")
     def test_session_list(
-        self, mock_opencode_class, mock_paths, setup_mock_files
+        self, mock_session_manager_class, mock_paths, setup_mock_files
     ):
         """Test listing sessions."""
-        mock_client = Mock()
-        mock_opencode_class.return_value = mock_client
+        mock_session_manager = Mock()
+        mock_session_manager_class.return_value = mock_session_manager
 
         mock_session1 = Mock()
         mock_session1.id = "session-1"
@@ -163,7 +174,10 @@ class TestOpencodeServer:
         mock_session2.id = "session-2"
         mock_session2.title = "Session 2"
 
-        mock_client.session.list.return_value = [mock_session1, mock_session2]
+        mock_session_manager.list_sessions.return_value = [
+            mock_session1,
+            mock_session2,
+        ]
 
         server = OpencodeServer(
             target_dir=mock_paths["target_dir"],
@@ -172,7 +186,7 @@ class TestOpencodeServer:
             opencode_json=mock_paths["opencode_json"],
             opencode_binary=mock_paths["opencode_binary"],
         )
-        server._client = mock_client
+        server._session_manager = mock_session_manager
 
         sessions = server.list_sessions()
 

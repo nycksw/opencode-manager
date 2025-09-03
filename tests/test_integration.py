@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any, Dict
 
 import pytest
+
 from opencode_manager import OpencodeServer
 
 
@@ -149,7 +150,11 @@ class TestIntegrationWithRealServer:
             with server:
                 print("\nServer started successfully!")
                 print(f"   URL: {server.base_url}")
-                pid = server._process.pid if server._process else "N/A"
+                pid = (
+                    server.process_manager._process.pid
+                    if server.process_manager._process
+                    else "N/A"
+                )
                 print(f"   PID: {pid}")
 
                 # Test basic operations
