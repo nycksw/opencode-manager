@@ -195,11 +195,24 @@ class SessionManager:
                 text_parts = []
                 for part in parts:
                     # Parts can be dicts or objects
-                    if isinstance(part, dict) and part.get("type") == "text":
-                        text_parts.append(part["text"])
+                    if isinstance(part, dict):
+                        if part.get("type") == "text":
+                            text_parts.append(part.get("text", ""))
+                    elif hasattr(part, "type") and getattr(part, "type") == "text":
+                        text_parts.append(getattr(part, "text", ""))
                     elif hasattr(part, "text"):
-                        text_parts.append(getattr(part, "text"))
-                return "\n".join(text_parts) if text_parts else None
+                        text_parts.append(str(getattr(part, "text", "")))
+                
+                # Return joined text if we found any, otherwise try direct text attribute
+                if text_parts:
+                    return "\n".join(text_parts)
+            
+            # If no parts, try to get text directly from response
+            if hasattr(response, "text"):
+                return str(getattr(response, "text"))
+            
+            # Last resort: return string representation if response exists
+            return str(response) if response else None
         return None
 
     def get_messages(self, session_id: str) -> List:

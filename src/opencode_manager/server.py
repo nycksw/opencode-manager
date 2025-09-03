@@ -125,14 +125,11 @@ class OpencodeServer:
 
         while time.time() - start_time < self.startup_timeout:
             try:
-                # Try to get app info as health check
-                app_info = self._client.app.get()
-                if app_info:
-                    # App object may not have version attribute
-                    version = getattr(app_info, "version", "unknown")
-                    self.logger.info(
-                        f"Server ready! Version: {version}"
-                    )
+                # Use session list as health check - it's a simple endpoint
+                # that should always work if the server is up
+                sessions = self._client.session.list()
+                if sessions is not None:  # Empty list is fine, just need a response
+                    self.logger.info("Server ready!")
                     return
             except Exception as e:
                 self.logger.debug(f"Health check failed: {e}")
