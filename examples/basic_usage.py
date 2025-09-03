@@ -5,6 +5,7 @@ Run this example with uv:
     uv run python examples/basic_usage.py
 
 Make sure test_resources/ contains the required files first!
+    Use: make setup-test
 """
 
 import sys

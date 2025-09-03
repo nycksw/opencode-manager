@@ -1,0 +1,66 @@
+{
+  "description": "opencode version compatibility mapping for opencode-manager",
+  "current_sdk_version": "0.1.0a36",
+  "recommended_opencode_version": "0.5.28",
+  "compatibility": [
+    {
+      "sdk_version": "0.1.0a36",
+      "sdk_release_date": "2025-08-27",
+      "compatible_opencode_versions": {
+        "recommended": "0.5.28",
+        "min": "0.5.25",
+        "max": "0.5.28",
+        "tested": ["0.5.28"]
+      },
+      "notes": "SDK released Aug 27, opencode v0.5.28 released Aug 26. Full compatibility."
+    }
+  ],
+  "opencode_releases": {
+    "0.5.28": {
+      "release_date": "2025-08-26",
+      "downloads": {
+        "linux-x64": {
+          "url": "https://github.com/sst/opencode/releases/download/v0.5.28/opencode-linux-x64.zip",
+          "filename": "opencode-linux-x64.zip",
+          "extract": "opencode"
+        },
+        "linux-arm64": {
+          "url": "https://github.com/sst/opencode/releases/download/v0.5.28/opencode-linux-arm64.zip",
+          "filename": "opencode-linux-arm64.zip",
+          "extract": "opencode"
+        },
+        "darwin-x64": {
+          "url": "https://github.com/sst/opencode/releases/download/v0.5.28/opencode-macos-x64.zip",
+          "filename": "opencode-macos-x64.zip",
+          "extract": "opencode"
+        },
+        "darwin-arm64": {
+          "url": "https://github.com/sst/opencode/releases/download/v0.5.28/opencode-macos-arm64.zip",
+          "filename": "opencode-macos-arm64.zip",
+          "extract": "opencode"
+        }
+      },
+      "api_features": {
+        "has_app_endpoints": true,
+        "operation_name": "session.chat",
+        "model_structure": "flat",
+        "directory_parameter": false
+      }
+    },
+    "0.6.0": {
+      "release_date": "2025-09-01",
+      "breaking_changes": [
+        "Removed /app endpoints",
+        "session.chat renamed to session.prompt",
+        "Model parameter now nested object",
+        "All endpoints accept directory parameter"
+      ],
+      "compatibility": "INCOMPATIBLE with SDK 0.1.0a36"
+    },
+    "0.6.3": {
+      "release_date": "2025-09-02",
+      "compatibility": "PARTIALLY WORKING with SDK 0.1.0a36 (not recommended)",
+      "notes": "Works due to server backwards compatibility, but unreliable"
+    }
+  }
+}

@@ -63,3 +63,6 @@ package-lock.json
 
 # Bun lockfile (project uses npm)
 bun.lock
+
+# Downloaded binaries
+bin/

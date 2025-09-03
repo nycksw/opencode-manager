@@ -1,12 +1,25 @@
 # opencode-manager
 
-Python library for managing isolated opencode server instances with full lifecycle control.
+**opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the interface for such a system.
 
-** Complete XDG Isolation:** Server instances run in fully isolated environments, never touching your personal files or directories. [Learn more →](ISOLATION.md)
+**Complete XDG/Config/Data Isolation:** Server instances run in fully isolated environments, never touching your personal files or directories. [Learn more →](ISOLATION.md)
+
+## Version Compatibility
+
+The system automatically manages opencode versions for compatibility:
+
+| Component | Version | Notes |
+|-----------|---------|-------|
+| opencode-ai SDK | 0.1.0a36 | Latest available SDK |
+| opencode binary | v0.5.28 | Automatically downloaded via `make setup` |
+| Python | 3.9+ | Type hints require 3.9+ |
+
+**Important:** opencode v0.6.0+ has breaking API changes incompatible with the current SDK. See [API_CHANGES.md](API_CHANGES.md) for details.
 
 ## Prerequisites
 
 - [`uv`](https://github.com/astral-sh/uv) for Python package management
+- Python 3.9 or higher
 - Node.js/npm (for development tools like pyright)
 
 ```bash
@@ -20,7 +33,10 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 # Clone and setup
 git clone <repo-url>
 cd opencode-manager
-uv sync
+
+# Install dependencies and setup everything (opencode binary + test resources)
+make install
+make setup
 
 # Run tests
 make test
@@ -39,35 +55,32 @@ cd opencode-manager
 # Install all dependencies (Python + dev tools)
 make install
 
+# Setup everything (download opencode binary + configure test resources)
+make setup
+
+# Or setup components individually:
+make setup-bin        # Download compatible opencode binary to ./bin
+make setup-test       # Setup test resources in ./test_resources
+
 # Or manually:
-uv sync             # Python dependencies
-npm install         # Dev tools (pyright)
+uv sync                          # Python dependencies
+npm install                      # Dev tools (pyright)
+python scripts/download_opencode.py  # Download recommended version
 ```
 
 ## Usage
 
-```python
-from pathlib import Path
-from opencode_manager import OpencodeServer
+See [`examples/basic_usage.py`](examples/basic_usage.py) for a complete working example that demonstrates:
+- Server initialization with isolated environment
+- Session creation and management
+- Sending messages and receiving responses
+- Proper resource cleanup
 
-# Start a server with isolated environment
-with OpencodeServer(
-    target_dir=Path("./test_env"),
-    auth_file=Path("./auth.json"),
-    opencode_config_dir=Path("./.opencode"),
-    opencode_json=Path("./opencode.json"),
-    opencode_binary=Path("./opencode"),
-    delete_target_dir_on_exit=True
-) as server:
-    # Create a session
-    session = server.create_session("Test Session")
-
-    # Send message and get response
-    response = session.send_message("Hello!")
-    print(response)
-
-    # Get messages
-    messages = session.get_messages()
+Run the example with:
+```bash
+make example
+# Or directly:
+uv run python examples/basic_usage.py
 ```
 
 ## Running Tests
@@ -75,14 +88,11 @@ with OpencodeServer(
 ### Unit Tests
 
 ```bash
-# Run all unit tests
+# Run unit tests (no API calls, no costs)
 make test
 
-# Or run directly with Python module syntax
-uv run python -m pytest tests/test_server.py -v
-
-# Run with coverage
-uv run python -m pytest tests/test_server.py --cov=opencode_manager
+# Or explicitly:
+make test-unit
 ```
 
 ### Integration Tests
@@ -92,9 +102,9 @@ uv run python -m pytest tests/test_server.py --cov=opencode_manager
 Integration tests use real opencode server instances and show detailed progress.
 They will consume API credits from your configured provider (OpenAI, Anthropic, etc.).
 
-First, set up test resources:
+First, ensure test resources are setup (automatically done by `make setup`):
 ```bash
-./test_resources/setup.sh
+make setup-test  # Only needed if you haven't run `make setup`
 ```
 
 Then run tests:
@@ -154,8 +164,7 @@ make update-api-spec
 make check-api-spec
 ```
 
-The tested opencode version is tracked in `OPENCODE_VERSION`.
-Note: This uses the `test_resources/opencode` binary with full isolation.
+The system automatically uses the compatible opencode version from `./bin/opencode` with full isolation.
 
 ## Features
 

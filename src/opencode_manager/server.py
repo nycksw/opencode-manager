@@ -1,5 +1,6 @@
 """OpencodeServer - High-level server orchestration and management."""
 
+import json
 import logging
 import subprocess
 import time
@@ -64,6 +65,9 @@ class OpencodeServer:
 
         # Setup logging
         self._setup_logging()
+        
+        # Check version compatibility
+        self._check_version_compatibility()
 
         # Initialize components
         self.isolation_manager = IsolationManager(
@@ -96,6 +100,64 @@ class OpencodeServer:
         )
         console_handler.setFormatter(console_formatter)
         self.logger.addHandler(console_handler)
+    
+    def _check_version_compatibility(self) -> None:
+        """Check opencode binary version against compatibility configuration."""
+        # Load version configuration
+        config_path = Path(__file__).parent.parent.parent / "opencode_versions.json"
+        if not config_path.exists():
+            self.logger.warning(
+                "Version configuration not found. Skipping compatibility check."
+            )
+            return
+        
+        try:
+            with open(config_path) as f:
+                version_config = json.load(f)
+        except Exception as e:
+            self.logger.warning(f"Failed to load version config: {e}")
+            return
+        
+        # Get binary version
+        try:
+            result = subprocess.run(
+                [str(self.opencode_binary), "--version"],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            binary_version = result.stdout.strip()
+        except Exception as e:
+            self.logger.warning(f"Failed to check opencode version: {e}")
+            return
+        
+        # Check compatibility
+        recommended = version_config.get("recommended_opencode_version")
+        current_sdk = version_config.get("current_sdk_version", "unknown")
+        
+        if binary_version == recommended:
+            self.logger.info(
+                f"Using opencode v{binary_version} (recommended for SDK {current_sdk})"
+            )
+        elif binary_version.startswith("0.5."):
+            self.logger.info(
+                f"Using opencode v{binary_version} (compatible with SDK {current_sdk})"
+            )
+        elif binary_version.startswith("0.6."):
+            self.logger.warning(
+                f"Using opencode v{binary_version} - POTENTIAL COMPATIBILITY ISSUES\n"
+                f"  SDK {current_sdk} was built for opencode v{recommended}\n"
+                f"  Version 0.6.0+ has breaking API changes:\n"
+                f"  - Removed /app endpoints\n"
+                f"  - Changed session.chat to session.prompt\n"
+                f"  - Changed model parameter structure\n"
+                f"  Consider downgrading to v{recommended}"
+            )
+        else:
+            self.logger.warning(
+                f"Using opencode v{binary_version} - untested version\n"
+                f"  Recommended: v{recommended} for SDK {current_sdk}"
+            )
 
     def _add_file_logging(self) -> None:
         """Add file logging after target_dir is created."""

@@ -25,10 +25,13 @@ from opencode_manager import OpencodeServer
 
 def check_opencode_version():
     """Show version info for debugging test failures."""
-    version_file = Path("OPENCODE_VERSION")
-    if version_file.exists():
+    config_file = Path("opencode_versions.json")
+    if config_file.exists():
         try:
-            expected = version_file.read_text().strip()
+            with open(config_file) as f:
+                config = json.load(f)
+            expected = config["recommended_opencode_version"]
+            
             # Check version of actual test binary
             result = subprocess.run(
                 ["test_resources/opencode", "--version"],
@@ -39,7 +42,7 @@ def check_opencode_version():
             actual = result.stdout.strip()
             
             if actual != expected:
-                print(f"\nWARNING: Testing with opencode {actual} (last tested: {expected})")
+                print(f"\nWARNING: Testing with opencode {actual} (recommended: {expected})")
                 print(f"   If tests fail, consider: make update-api-spec\n")
         except Exception:
             pass  # Don't break tests over version display
@@ -228,11 +231,21 @@ class TestIntegrationWithRealServer:
                 
                 # Capture version and API spec if requested
                 if os.environ.get("UPDATE_API_SPEC"):
-                    print("\nUpdating API spec and version...")
+                    print("\nUpdating API spec...")
                     try:
                         # Get version (runs in isolation)
                         version = server.get_opencode_version()
-                        Path("OPENCODE_VERSION").write_text(version)
+                        
+                        # Update version in config
+                        config_file = Path("opencode_versions.json")
+                        with open(config_file) as f:
+                            config = json.load(f)
+                        
+                        if config["recommended_opencode_version"] != version:
+                            print(f"Warning: Version mismatch in config")
+                            print(f"  Config: {config['recommended_opencode_version']}")
+                            print(f"  Binary: {version}")
+                        
                         print(f"Captured version: {version}")
                         
                         # Get API spec from running server
@@ -244,10 +257,10 @@ class TestIntegrationWithRealServer:
                         with open("opencode_api.json", "w") as f:
                             json.dump(api_spec, f, indent=2)
                         
-                        print(f"Updated API spec to opencode {version}")
+                        print(f"Updated API spec for opencode {version}")
                     except Exception as e:
                         print(f"Warning: Could not update API spec: {e}")
-                        print("Note: The /openapi endpoint may not be available in this version")
+                        print("Note: The /doc endpoint may not be available in this version")
 
                 print("\n" + "=" * 70)
                 print("Integration test completed successfully!")

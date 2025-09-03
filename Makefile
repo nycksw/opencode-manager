@@ -1,9 +1,12 @@
-.PHONY: help install test test-unit test-integration test-all format lint typecheck precommit clean example update-api-spec check-api-spec
+.PHONY: help install setup setup-bin setup-test test test-unit test-integration test-all format lint typecheck precommit clean example update-api-spec check-api-spec
 
 help:
 	@echo "opencode-manager development commands (using uv)"
 	@echo ""
 	@echo "  make install          Install dependencies with uv"
+	@echo "  make setup           Setup everything (configs + binary)"
+	@echo "  make setup-bin       Download recommended opencode version to ./bin"
+	@echo "  make setup-test      Setup test resources"
 	@echo "  make test            Run unit tests"
 	@echo "  make test-integration Run integration tests (safe mode)"
 	@echo "  make test-all        Run all tests"
@@ -28,6 +31,16 @@ install:
 		echo "Installing pre-commit hooks..."; \
 		pre-commit install --install-hooks; \
 	fi
+
+setup: setup-bin setup-test
+
+setup-bin:
+	@echo "Downloading recommended opencode version to ./bin..."
+	@python scripts/setup.py --bin-dir
+
+setup-test:
+	@echo "Setting up test resources..."
+	@python scripts/setup.py --test-resources
 
 test: test-unit
 
@@ -60,19 +73,21 @@ example:
 	uv run python examples/basic_usage.py
 
 update-api-spec:
-	@echo "Updating version (and API spec if available) via integration test..."
-	@if [ ! -x test_resources/opencode ]; then \
-	    echo "ERROR: test_resources/opencode not found. Run: ./test_resources/setup.sh"; \
-	    exit 1; \
+	@echo "Updating OpenAPI spec from integration test..."
+	@UPDATE_API_SPEC=1 uv run python -m pytest tests/test_integration.py::TestIntegrationWithRealServer::test_server_lifecycle -xvs
+	@if [ -f opencode_versions.json ]; then \
+	    VERSION=$$(python -c "import json; print(json.load(open('opencode_versions.json'))['recommended_opencode_version'])"); \
+	    echo "Updated API spec for opencode v$$VERSION"; \
 	fi
 	@UPDATE_API_SPEC=1 uv run python -m pytest tests/test_integration.py::TestIntegrationWithRealServer::test_server_lifecycle -xvs -q 2>&1 | grep -v "^=" | tail -15
-	@if [ -f OPENCODE_VERSION ]; then \
-	    echo "Updated to opencode $$(cat OPENCODE_VERSION)"; \
+	@if [ -f opencode_versions.json ]; then \
+	    VERSION=$$(python -c "import json; print(json.load(open('opencode_versions.json'))['recommended_opencode_version'])"); \
+	    echo "Updated to opencode v$$VERSION"; \
 	fi
 
 check-api-spec: update-api-spec
-	@git diff --quiet opencode_api.json OPENCODE_VERSION || \
-	    (echo "WARNING: API spec or version has changed - review and commit if needed"; exit 1)
+	@git diff --quiet opencode_api.json || \
+	    (echo "WARNING: API spec has changed - review and commit if needed"; exit 1)
 
 clean:
 	rm -rf .pytest_cache/
