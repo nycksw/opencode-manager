@@ -23,10 +23,10 @@ cd opencode-manager
 uv sync
 
 # Run tests
-uv run pytest
+make test
 
 # Run example
-uv run python examples/basic_usage.py
+make example
 ```
 
 ## Installation
@@ -76,10 +76,13 @@ with OpencodeServer(
 
 ```bash
 # Run all unit tests
-uv run pytest tests/test_server.py -v
+make test
+
+# Or run directly with Python module syntax
+uv run python -m pytest tests/test_server.py -v
 
 # Run with coverage
-uv run pytest tests/test_server.py --cov=opencode_manager
+uv run python -m pytest tests/test_server.py --cov=opencode_manager
 ```
 
 ### Integration Tests
@@ -97,20 +100,20 @@ First, set up test resources:
 Then run tests:
 ```bash
 # Run integration tests (shows test names and detailed operation progress)
-uv run pytest tests/test_integration.py
+make test-integration
 
-# Run with less output (hide operation details)
-uv run pytest tests/test_integration.py --capture=sys
+# Or run directly with less output (hide operation details)
+uv run python -m pytest tests/test_integration.py --capture=sys
 ```
 
 ### Run All Tests
 
 ```bash
-# Run all tests except integration
-uv run pytest -m "not integration"
+# Run all tests
+make test-all
 
-# Run everything
-uv run pytest
+# Run all tests except integration (using Python module syntax)
+uv run python -m pytest -m "not integration"
 ```
 
 ## Development
@@ -133,6 +136,9 @@ make typecheck
 
 ```bash
 # Run the basic usage example
+make example
+
+# Or run directly
 uv run python examples/basic_usage.py
 ```
 

@@ -5,7 +5,7 @@
 **opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the interface for such a system.
 
 ### Key Design Decisions
-- **No Threading**: Single sever, simple polling model; opencode handles its own concurrency internally
+- **No Threading**: Single server, simple polling model; opencode handles its own concurrency internally
 - **No Streaming**: Messages are exchanged in discrete request/response cycles
 - **Minimal Abstractions**: No premature optimization or unused interfaces
 - **Isolation Focus**: Prevents pollution of user's actual opencode XDG directories
@@ -36,6 +36,7 @@ The server must NEVER touch the user's real XDG directories or home directory. A
 - Use `black` for formatting, `ruff` for linting
 
 ### Git Commits
+- Avoid hyperbolic language. Be objective and understated.
 - Use [Conventional Commits](https://www.conventionalcommits.org/) format
 - Follow the 50/72 rule (50 char subject, 72 char wrapped body)
 - Examples:
