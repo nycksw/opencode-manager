@@ -210,12 +210,19 @@ class TestIntegrationWithRealServer:
                 )
 
                 print("\nAssistant response:")
-                if response:
-                    # Show full response (it should be short anyway)
-                    for line in response.strip().split("\n"):
-                        print(f"   {line}")
-                else:
-                    print("   (No response received)")
+                assert response is not None, "Expected a response but got None"
+
+                # This assertion validates everything else we need:
+                # - Not a string: .lower() will fail with AttributeError
+                # - Empty/wrong content/stringified object: assertion fails
+                expected = "integration test successful"
+                assert (
+                    expected in response.lower()
+                ), f"Expected '{expected}' in response, but got: {response}"
+
+                # Show the response
+                for line in response.strip().split("\n"):
+                    print(f"   {line}")
 
                 # List sessions
                 print("\nListing sessions...")
@@ -331,9 +338,13 @@ class TestIntegrationWithRealServer:
             print("\nSending first message...")
             print("   Message: 'Say First message received'")
             response1 = session.send_message("Say 'First message received'")
-            assert response1 is not None, "Should get a response"
+            assert response1 is not None, "Should get a response for first message"
+            assert (
+                "first message received" in response1.lower()
+            ), f"Expected 'First message received' in response, got: {response1}"
+
             print("\nResponse 1:")
-            for line in (response1 or "").strip().split("\n"):
+            for line in response1.strip().split("\n"):
                 print(f"   {line}")
 
             # Check message count
@@ -352,8 +363,13 @@ class TestIntegrationWithRealServer:
             print("\nSending second message...")
             print("   Message: 'Say Second message received'")
             response2 = session.send_message("Say 'Second message received'")
+            assert response2 is not None, "Should get a response for second message"
+            assert (
+                "second message received" in response2.lower()
+            ), f"Expected 'Second message received' in response, got: {response2}"
+
             print("\nResponse 2:")
-            for line in (response2 or "").strip().split("\n"):
+            for line in response2.strip().split("\n"):
                 print(f"   {line}")
 
             # Get only new messages

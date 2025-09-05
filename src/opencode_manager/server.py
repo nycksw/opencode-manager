@@ -129,35 +129,23 @@ class OpencodeServer:
             self.logger.warning(f"Failed to check opencode version: {e}")
             return
 
-        # Check compatibility
+        # Check compatibility - simple version check
         recommended = version_config.get("recommended_opencode_version")
         current_sdk = version_config.get("current_sdk_version", "unknown")
 
-        if binary_version == recommended:
+        # Normalize versions for comparison (strip 'v' prefix if present)
+        normalized_binary = binary_version.lstrip("v")
+        normalized_recommended = recommended.lstrip("v") if recommended else ""
+
+        if normalized_binary == normalized_recommended:
             self.logger.info(
-                f"Using opencode v{binary_version} "
+                f"Using opencode {binary_version} "
                 f"(recommended for SDK {current_sdk})"
-            )
-        elif binary_version.startswith("0.5."):
-            self.logger.info(
-                f"Using opencode v{binary_version} "
-                f"(compatible with SDK {current_sdk})"
-            )
-        elif binary_version.startswith("0.6."):
-            self.logger.warning(
-                f"Using opencode v{binary_version} - "
-                f"POTENTIAL COMPATIBILITY ISSUES\n"
-                f"  SDK {current_sdk} was built for opencode v{recommended}\n"
-                f"  Version 0.6.0+ has breaking API changes:\n"
-                f"  - Removed /app endpoints\n"
-                f"  - Changed session.chat to session.prompt\n"
-                f"  - Changed model parameter structure\n"
-                f"  Consider downgrading to v{recommended}"
             )
         else:
             self.logger.warning(
-                f"Using opencode v{binary_version} - untested version\n"
-                f"  Recommended: v{recommended} for SDK {current_sdk}"
+                f"Using opencode {binary_version} - not the recommended version\n"
+                f"  Recommended: v{normalized_recommended} for SDK {current_sdk}"
             )
 
     def _add_file_logging(self) -> None:

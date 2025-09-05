@@ -1,5 +1,7 @@
 """Tests for OpencodeServer."""
 
+import json
+from pathlib import Path
 from unittest.mock import Mock, patch
 
 import pytest
@@ -28,6 +30,26 @@ class TestOpencodeServer:
         mock_paths["opencode_json"].write_text("{}")
         mock_paths["opencode_binary"].touch()
         mock_paths["opencode_binary"].chmod(0o755)
+
+    @pytest.fixture(autouse=True)
+    def mock_version_check(self):
+        """Mock subprocess.run to return the blessed version from JSON."""
+        # Load the recommended version from opencode_versions.json
+        version_file = Path(__file__).parent.parent / "opencode_versions.json"
+        with open(version_file) as f:
+            version_data = json.load(f)
+            recommended = version_data["recommended_opencode_version"]
+
+        # opencode --version returns with 'v' prefix
+        blessed_version = f"v{recommended}"
+
+        # Patch subprocess.run in the server module
+        with patch("opencode_manager.server.subprocess.run") as mock_run:
+            mock_result = Mock()
+            mock_result.stdout = blessed_version
+            mock_result.returncode = 0
+            mock_run.return_value = mock_result
+            yield mock_run
 
     def test_server_initialization(self, mock_paths, setup_mock_files):
         """Test server can be initialized with required parameters."""
@@ -190,3 +212,54 @@ class TestOpencodeServer:
         assert len(sessions) == 2
         assert sessions[0].id == "session-1"
         assert sessions[1].id == "session-2"
+
+    def test_recommended_version_no_warning(self, mock_paths, setup_mock_files, caplog):
+        """Test that using the recommended version does not trigger a warning."""
+        # The default mock already returns the blessed version
+        import logging
+
+        caplog.set_level(logging.INFO)
+
+        OpencodeServer(
+            target_dir=mock_paths["target_dir"],
+            auth_file=mock_paths["auth_file"],
+            opencode_config_dir=mock_paths["opencode_config_dir"],
+            opencode_json=mock_paths["opencode_json"],
+            opencode_binary=mock_paths["opencode_binary"],
+        )
+
+        # Should have info message, not warning
+        infos = [
+            r
+            for r in caplog.records
+            if r.levelname == "INFO" and "recommended" in r.message
+        ]
+        warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+        assert len(infos) > 0, "Should log info about using recommended version"
+        assert len(warnings) == 0, "Should not warn when using recommended version"
+
+    def test_version_mismatch_warning(self, mock_paths, setup_mock_files, caplog):
+        """Test that using a non-recommended version triggers a warning."""
+        # Override the mock to return a different version
+        with patch("opencode_manager.server.subprocess.run") as mock_run:
+            mock_result = Mock()
+            mock_result.stdout = "v0.6.0"  # Not the recommended version
+            mock_result.returncode = 0
+            mock_run.return_value = mock_result
+
+            import logging
+
+            caplog.set_level(logging.WARNING)
+
+            OpencodeServer(
+                target_dir=mock_paths["target_dir"],
+                auth_file=mock_paths["auth_file"],
+                opencode_config_dir=mock_paths["opencode_config_dir"],
+                opencode_json=mock_paths["opencode_json"],
+                opencode_binary=mock_paths["opencode_binary"],
+            )
+
+            # Should have warned about non-recommended version
+            warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+            assert len(warnings) > 0, "Should warn about non-recommended version"
+            assert any("not the recommended version" in w.message for w in warnings)
