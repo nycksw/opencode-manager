@@ -13,15 +13,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nycksw/opencode-server-python.git"
+    "url": "git+https://github.com/nycksw/opencode-manager.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/nycksw/opencode-server-python/issues"
+    "url": "https://github.com/nycksw/opencode-manager/issues"
   },
-  "homepage": "https://github.com/nycksw/opencode-server-python#readme",
+  "homepage": "https://github.com/nycksw/opencode-manager#readme",
   "devDependencies": {
     "pyright": "^1.1.405"
   }
