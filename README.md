@@ -1,6 +1,12 @@
 # opencode-manager
 
-**opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the interface for such a system.
+> **EXPERIMENTAL!**
+>
+> This is an experiment to see how well the opencode SDK/API is working. Don't use this for anything real. It's not very stable.
+>
+> Early results of the experiment: IT WORKS! ... but opencode moves really really fast and their client SDKs can lag far behind the production API. My first attempt at this used a Python SDK generated with [openapi-python-client](https://github.com/openapi-generators/openapi-python-client). With a minor bug-fix that also worked, but the [Stainless SDK](https://github.com/sst/opencode-sdk-python) is much cleaner. I would also prefer to use the developer-maintained version if that's an option.
+
+**opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions within the same headless server, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the classes for such a system.
 
 **Complete XDG/Config/Data Isolation:** Server instances run in fully isolated environments, never touching your personal files or directories. [Learn more →](ISOLATION.md)
 
@@ -22,14 +28,14 @@ The system automatically manages opencode versions for compatibility:
 - Python 3.9 or higher
 - Node.js/npm (for development tools like pyright)
 
-```bash
+```shell
 # Install uv if you haven't already
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 ## Quick Start
 
-```bash
+```shell
 # Clone and setup
 git clone <repo-url>
 cd opencode-manager
@@ -47,7 +53,7 @@ make example
 
 ## Installation
 
-```bash
+```shell
 # Clone the repository
 git clone <repo-url>
 cd opencode-manager
@@ -77,7 +83,7 @@ See [`examples/basic_usage.py`](examples/basic_usage.py) for a complete working 
 - Proper resource cleanup
 
 Run the example with:
-```bash
+```shell
 make example
 # Or directly:
 uv run python examples/basic_usage.py
@@ -87,7 +93,7 @@ uv run python examples/basic_usage.py
 
 ### Unit Tests
 
-```bash
+```shell
 # Run unit tests (no API calls, no costs)
 make test
 
@@ -103,12 +109,12 @@ Integration tests use real opencode server instances and show detailed progress.
 They will consume API credits from your configured provider (OpenAI, Anthropic, etc.).
 
 First, ensure test resources are setup (automatically done by `make setup`):
-```bash
+```shell
 make setup-test  # Only needed if you haven't run `make setup`
 ```
 
 Then run tests:
-```bash
+```shell
 # Run integration tests (shows test names and detailed operation progress)
 make test-integration
 
@@ -118,7 +124,7 @@ uv run python -m pytest tests/test_integration.py --capture=sys
 
 ### Run All Tests
 
-```bash
+```shell
 # Run all tests
 make test-all
 
@@ -128,7 +134,7 @@ uv run python -m pytest -m "not integration"
 
 ## Development
 
-```bash
+```shell
 # Install development dependencies
 make install
 
@@ -144,7 +150,7 @@ make typecheck
 
 ## Running Examples
 
-```bash
+```shell
 # Run the basic usage example
 make example
 
@@ -156,7 +162,7 @@ uv run python examples/basic_usage.py
 
 The project tracks the OpenAPI specification and version of the opencode binary:
 
-```bash
+```shell
 # Update API spec and version (runs integration test)
 make update-api-spec
 
