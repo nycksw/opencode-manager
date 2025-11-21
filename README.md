@@ -1,10 +1,6 @@
 # opencode-manager
 
-> **EXPERIMENTAL!**
->
-> This is an experiment to see how well the opencode SDK/API is working. Don't use this for anything real. It's not very stable.
->
-> Early results of the experiment: IT WORKS! ... but opencode moves really really fast and their client SDKs can lag far behind the production API. My first attempt at this used a Python SDK generated with [openapi-python-client](https://github.com/openapi-generators/openapi-python-client). With a minor bug-fix that also worked, but the [Stainless SDK](https://github.com/sst/opencode-sdk-python) is much cleaner. I would also prefer to use the developer-maintained version if that's an option.
+> **EXPERIMENTAL!**! This was proof of concept code for an alpha version of opencode's SDK/API. Don't use this for anything real. This uses a Python SDK generated with [openapi-python-client](https://github.com/openapi-generators/openapi-python-client) with some minor bug-fixes. The [Stainless SDK](https://github.com/sst/opencode-sdk-python) is probably much cleaner now.
 
 **opencode-manager** is designed to help orchestrate multiple AI agents working in parallel to solve complex tasks. The system manages 5-10 concurrent opencode sessions within the same headless server, each running an independent agent that can be monitored and controlled by an external coordination system. This project provides the classes for such a system.
 
